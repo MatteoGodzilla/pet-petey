@@ -29,7 +29,10 @@ wsServer.addListener("connection", (client)=>{
         FS.writeFileSync(DATABASE_PATH,count.toString())
         //update other clients
         for(let conn of conns){
-            if(conn != client) conn.send(count.toString())
+            if(conn != client) conn.send(JSON.stringify({
+                id:"COUNT",
+                value:count
+            }))
         }
         clicks.push(msg.data)
     })
