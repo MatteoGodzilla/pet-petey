@@ -4,6 +4,7 @@ const PETEY = document.querySelector("#imgPetey")
 const HAND = document.querySelector("#imgHand")
 
 let count = 0
+let pps = 0
 
 let frame = 0
 let animating = false
@@ -13,7 +14,7 @@ function pet(){
     count++
     animating = true
     lastFrameTime = new Date().getTime()
-    if(!isNaN(count)) SOCKET.send("pet")
+    if(!isNaN(count)) SOCKET.send(new Date().getTime())
 }
 
 function loop(){
@@ -29,6 +30,10 @@ function loop(){
     let text = `Pets:${count}`
     ctx.textAlign = "center"
     ctx.fillText(text,CANVAS.width / 2,CANVAS.height / 2 + dim * 2/3)
+
+    //speed
+    text = `Pets/second:${pps}`
+    ctx.fillText(text,CANVAS.width / 2,CANVAS.height / 2 + dim * 2/3 + 48)
     
     //petey himself
     let x = CANVAS.width / 2 - dim / 2
@@ -63,8 +68,14 @@ function resize(){
 resize()
 
 SOCKET.addEventListener("message",(ev)=>{
-    let test = parseInt(ev.data)
-    if(!isNaN(test)) count = test
+    let obj = JSON.parse(ev.data)
+    if(obj != null && obj.id != null){
+        if(obj.id == "COUNT"){
+            count = obj.value
+        } else if(obj.id == "SPEED"){
+            pps = obj.value
+        }
+    }
 })
 
 window.addEventListener("mousedown", (ev)=>{ pet(); ev.preventDefault() })
